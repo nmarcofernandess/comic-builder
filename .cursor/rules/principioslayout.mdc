@@ -1,0 +1,1263 @@
+---
+description: Este documento reúne padrões e recomendações para uso consistente e eficiente do HeroUI, com base em exemplos reais do projeto e melhores práticas da comunidade.
+globs: 
+alwaysApply: false
+---
+# Guia de Boas Práticas HeroUI
+
+Este documento reúne padrões e recomendações para uso consistente e eficiente do HeroUI, com base em exemplos reais do projeto e melhores práticas da comunidade.
+
+---
+
+## 1. Princípios Fundamentais
+
+### 1.1 Importações
+✅ Correto:
+```typescript
+import { Button, Modal, Input } from "@heroui/react";
+```
+❌ Incorreto:
+```typescript
+import { Button } from "@heroui/button";
+import { Modal } from "@heroui/modal";
+```
+
+### 1.2 Estrutura de Componentes
+✅ Correto:
+```typescript
+import React from "react";
+import { Modal, ModalContent, ModalHeader } from "@heroui/react";
+
+export function CustomModal() {
+  return (
+    <Modal>
+      <ModalContent>
+        <ModalHeader>Título</ModalHeader>
+      </ModalContent>
+    </Modal>
+  );
+}
+```
+❌ Incorreto:
+```typescript
+import { Modal } from "@heroui/react";
+
+export function CustomModal() {
+  return (
+    <Modal>
+      <Modal.Content>
+        <Modal.Header>Título</Modal.Header>
+      </Modal.Content>
+    </Modal>
+  );
+}
+```
+
+### 1.3 Estrutura Base de Componente
+```typescript
+interface ComponentProps {
+  // Required props primeiro
+  value: string;
+  onChange: (value: string) => void;
+  // Optional props depois
+  label?: string;
+  description?: string;
+  isDisabled?: boolean;
+  // Estilização por último
+  className?: string;
+  classNames?: {
+    base?: string;
+    label?: string;
+    input?: string;
+  };
+}
+
+export function Component({
+  // Props em ordem alfabética
+  className,
+  classNames,
+  description,
+  isDisabled = false,
+  label,
+  onChange,
+  value,
+}: ComponentProps) {
+  // Hooks primeiro
+  const [localState, setLocalState] = React.useState(value);
+
+  // Callbacks depois
+  const handleChange = React.useCallback((newValue: string) => {
+    setLocalState(newValue);
+    onChange(newValue);
+  }, [onChange]);
+
+  // Render último
+  return (
+    <div className={className}>
+      {label && (
+        <label className={classNames?.label}>
+          {label}
+        </label>
+      )}
+      <Input
+        isDisabled={isDisabled}
+        value={localState}
+        onValueChange={handleChange}
+        className={classNames?.input}
+      />
+      {description && (
+        <p className="text-small text-default-500">
+          {description}
+        </p>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
+## 2. Uso da Documentação HeroUI
+
+### 2.1 Referência de Props
+- Sempre consulte a documentação oficial para props disponíveis
+- Use TypeScript para garantir tipos corretos
+- Mantenha consistência com os valores padrão
+
+### 2.2 Exemplos de Implementação e Variantes de Componentes
+```typescript
+// ✅ Correto: Uso adequado de props documentadas
+<Button 
+  color="primary"
+  variant="solid"
+  size="md"
+  radius="md"
+>
+  Clique Aqui
+</Button>
+
+// ❌ Incorreto: Props não documentadas ou incorretas
+<Button 
+  backgroundColor="blue"
+  type="large"
+  rounded
+>
+  Clique Aqui
+</Button>
+```
+
+### 2.3 Padrões de Estilização
+```typescript
+// Variantes de Botão utilizando classNames
+export function Button({
+  variant = "solid",
+  color = "primary",
+  size = "md",
+  ...props
+}: ButtonProps) {
+  return (
+    <Button
+      variant={variant}
+      color={color}
+      size={size}
+      className={clsx(
+        // Base
+        "font-medium transition-colors",
+        // Variantes
+        {
+          "bg-primary hover:bg-primary-600": variant === "solid",
+          "border-2 border-primary": variant === "outlined",
+        },
+        // Tamanhos
+        {
+          "text-sm px-3 py-1": size === "sm",
+          "px-4 py-2": size === "md",
+          "text-lg px-6 py-3": size === "lg",
+        }
+      )}
+      {...props}
+    />
+  );
+}
+```
+
+---
+
+## 3. Padrões de Componentização
+
+### 3.1 Interface de Props
+```typescript
+// ✅ Correto: Interface clara e tipada
+interface CustomModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}
+
+// ❌ Incorreto: Props sem tipos ou mal definidas
+interface ModalProps {
+  open: any;
+  closeHandler: Function;
+  modalTitle: string;
+}
+```
+
+### 3.2 Estrutura de Componentes Compostos
+```typescript
+// ✅ Correto: Componentes separados e reutilizáveis
+export function DataTable() {
+  return (
+    <Table>
+      <TableHeader>
+        <TableColumn>Nome</TableColumn>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>Dados</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+}
+
+// ❌ Incorreto: Componentes aninhados incorretamente
+export function DataTable() {
+  return (
+    <Table>
+      <Table.Header>
+        <Table.Column>Nome</Table.Column>
+      </Table.Header>
+    </Table>
+  );
+}
+```
+
+### 3.3 Cards e Composição
+```typescript
+// ✅ Correto: Card completo com header, body e footer
+export function CompleteCard() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Título</CardTitle>
+      </CardHeader>
+      <CardBody>Conteúdo</CardBody>
+      <CardFooter>
+        <Button>Ação</Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+// ✅ Correto: Card aninhado sem sombra para hierarquia visual adequada
+export function NestedCard({
+  level = 0,
+  children
+}: {
+  level?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card
+      shadow={level === 0 ? "md" : "none"}
+      className={clsx({
+        "border border-default-200": level > 0,
+        "bg-default-50": level > 1
+      })}
+    >
+      {children}
+    </Card>
+  );
+}
+```
+
+### 3.4 Card com Header Editável
+```typescript
+interface EditableCardHeaderProps {
+  title: string;
+  onTitleChange: (value: string) => void;
+  actions?: React.ReactNode;
+}
+
+function EditableCardHeader({ title, onTitleChange, actions }: EditableCardHeaderProps) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [tempTitle, setTempTitle] = React.useState(title);
+
+  return (
+    <CardHeader className="flex justify-between items-center gap-2">
+      {isEditing ? (
+        <Input
+          value={tempTitle}
+          onValueChange={setTempTitle}
+          onBlur={() => {
+            setIsEditing(false);
+            onTitleChange(tempTitle);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setIsEditing(false);
+              onTitleChange(tempTitle);
+            }
+          }}
+          classNames={{
+            input: "text-lg font-semibold",
+            inputWrapper: "bg-transparent shadow-none hover:bg-default-100"
+          }}
+          autoFocus
+        />
+      ) : (
+        <Button
+          className="p-0 h-auto"
+          variant="light"
+          onPress={() => setIsEditing(true)}
+        >
+          <span className="text-lg font-semibold">{title}</span>
+        </Button>
+      )}
+      <div className="flex gap-2">{actions}</div>
+    </CardHeader>
+  );
+}
+```
+
+### 3.5 Autocomplete com Dados Dinâmicos
+```typescript
+interface AutocompleteFieldProps {
+  label: string;
+  items: any[];
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (item: any) => void;
+}
+
+function AutocompleteField({
+  label,
+  items,
+  value,
+  onChange,
+  onSelect
+}: AutocompleteFieldProps) {
+  return (
+    <Autocomplete
+      label={label}
+      defaultItems={items}
+      selectedKey={value}
+      onSelectionChange={(key) => onSelect(items.find(item => item.id === key))}
+      onInputChange={onChange}
+      className="max-w-full"
+    >
+      {(item) => (
+        <AutocompleteItem key={item.id}>
+          <div className="flex justify-between items-center">
+            <span>{item.name}</span>
+            <span className="text-default-400 text-small">
+              {item.description}
+            </span>
+          </div>
+        </AutocompleteItem>
+      )}
+    </Autocomplete>
+  );
+}
+```
+
+### 3.6 Cards Arrastáveis com Drag and Drop
+```typescript
+// Componente de Item Arrastável (ManipuladoItem.tsx)
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical, ChevronDown, ChevronUp } from 'lucide-react';
+
+interface DraggableCardProps {
+  id: string;
+  isMinimized: boolean;
+  onToggleMinimize: () => void;
+  children: React.ReactNode;
+  isDragOverlay?: boolean;
+}
+
+function DraggableCard({
+  id,
+  isMinimized,
+  onToggleMinimize,
+  children,
+  isDragOverlay = false
+}: DraggableCardProps) {
+  // Hook useSortable do dnd-kit
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ 
+    id,
+    disabled: isDragOverlay
+  });
+
+  // Estilo para o elemento durante operações de arrasto
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    marginBottom: '1.5rem',
+    opacity: isDragOverlay ? 0.7 : 1
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card className="transition-shadow duration-300 hover:shadow-lg">
+        <CardHeader className="flex justify-between items-center p-4">
+          <div className="flex items-center flex-grow">
+            {/* Alça de arrasto (drag handle) */}
+            <div {...attributes} {...listeners} className="cursor-grab">
+              <GripVertical className="mr-2 text-gray-400" size={18} />
+            </div>
+            
+            {/* Botão para expandir/minimizar */}
+            <Button
+              isIconOnly
+              variant="light"
+              onClick={onToggleMinimize}
+              aria-label={isMinimized ? "Expandir" : "Minimizar"}
+            >
+              {isMinimized ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+            </Button>
+            
+            {/* Resto do cabeçalho */}
+          </div>
+        </CardHeader>
+        
+        {/* Conteúdo condicional baseado no estado minimizado */}
+        {!isMinimized && (
+          <CardBody>
+            {children}
+          </CardBody>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// Implementação no componente contêiner (Main.tsx)
+import { 
+  DndContext, 
+  closestCenter, 
+  PointerSensor, 
+  useSensor, 
+  useSensors, 
+  DragStartEvent, 
+  DragEndEvent 
+} from '@dnd-kit/core';
+import { 
+  SortableContext, 
+  rectSortingStrategy, 
+  arrayMove 
+} from '@dnd-kit/sortable';
+import { DragOverlay } from '@dnd-kit/core';
+
+function DraggableCardList() {
+  const [items, setItems] = useState([]);
+  const [expandedStates, setExpandedStates] = useState({});
+  const [activeId, setActiveId] = useState(null);
+  
+  // Configuração dos sensores do DnD
+  const sensors = useSensors(useSensor(PointerSensor));
+  
+  // Ao iniciar o arrasto
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveId(active.id);
+    
+    // Salvar estados de expansão e minimizar todos durante o arrasto
+    const states = items.reduce((acc, item) => ({
+      ...acc,
+      [item.id]: !item.isMinimized
+    }), {});
+    setExpandedStates(states);
+    
+    // Minimiza todos os itens durante o arrasto
+    setItems(items.map(item => ({
+      ...item,
+      isMinimized: true
+    })));
+  };
+
+  // Ao finalizar o arrasto
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (over && active.id !== over.id) {
+      // Reordenar os itens
+      const oldIndex = items.findIndex(item => item.id === active.id);
+      const newIndex = items.findIndex(item => item.id === over.id);
+      
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      
+      // Restaurar os estados de expansão
+      setItems(newItems.map(item => ({
+        ...item,
+        isMinimized: !expandedStates[item.id]
+      })));
+    } else {
+      // Sem alteração de ordem, apenas restaurar estados
+      setItems(items.map(item => ({
+        ...item,
+        isMinimized: !expandedStates[item.id]
+      })));
+    }
+  };
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext 
+        items={items.map(item => item.id)} 
+        strategy={rectSortingStrategy}
+      >
+        {items.map(item => (
+          <DraggableCard
+            key={item.id}
+            id={item.id}
+            isMinimized={item.isMinimized}
+            onToggleMinimize={() => handleToggleMinimize(item.id)}
+          >
+            {/* Conteúdo do card */}
+          </DraggableCard>
+        ))}
+      </SortableContext>
+      
+      {/* Overlay visual durante o arrasto */}
+      <DragOverlay>
+        {activeId && (
+          <DraggableCard
+            id={activeId}
+            isMinimized={true}
+            onToggleMinimize={() => {}}
+            isDragOverlay
+          >
+            {/* Versão simplificada do conteúdo */}
+          </DraggableCard>
+        )}
+      </DragOverlay>
+    </DndContext>
+  );
+}
+```
+
+---
+
+## 4. Armadilhas Comuns
+
+### 4.1 Gerenciamento de Estado
+```typescript
+// ✅ Correto: Uso do useDisclosure
+function ModalExample() {
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      {/* conteúdo */}
+    </Modal>
+  );
+}
+
+// ❌ Incorreto: Estado manual sem controle adequado
+function ModalExample() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Modal open={open} onClose={() => setOpen(false)}>
+      {/* conteúdo */}
+    </Modal>
+  );
+}
+```
+
+### 4.2 Composição de Componentes
+```typescript
+// ✅ Correto: Componentes HeroUI nativos
+<Card>
+  <CardHeader>
+    <CardTitle>Título</CardTitle>
+  </CardHeader>
+  <CardBody>Conteúdo</CardBody>
+</Card>
+
+// ❌ Incorreto: Mistura com elementos HTML puros
+<Card>
+  <div className="header">
+    <h2>Título</h2>
+  </div>
+  <div className="body">Conteúdo</div>
+</Card>
+```
+
+---
+
+## 5. Exemplos Práticos
+
+### 5.1 Modal com Filtros
+```typescript
+// ✅ Correto: Implementação organizada e tipada
+interface StandardModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  dataList: CardData[];
+  selectedId: string | null;
+  setSelectedId: (id: string | null) => void;
+  iconName: string;
+  filterTags?: boolean;
+  allTags?: string[];
+  selectedTags?: string[];
+  setSelectedTags?: (tags: string[]) => void;
+}
+
+export function StandardModal({
+  isOpen,
+  onClose,
+  title,
+  dataList,
+  selectedId,
+  setSelectedId,
+  iconName,
+  filterTags = false,
+  allTags = [],
+  selectedTags = [],
+  setSelectedTags,
+}: StandardModalProps) {
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onClose}>
+      <ModalContent>
+        {/* Conteúdo estruturado */}
+      </ModalContent>
+    </Modal>
+  );
+}
+
+// ❌ Incorreto: Implementação desorganizada
+function Modal(props: any) {
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        {/* Conteúdo não estruturado */}
+      </div>
+    </div>
+  );
+}
+```
+
+### 5.2 Data Display e Visualização
+```typescript
+// Stat Card para exibição de métricas
+export function StatCard({
+  title,
+  value,
+  change,
+  icon
+}: StatCardProps) {
+  const isPositive = change >= 0;
+  
+  return (
+    <Card>
+      <CardBody className="flex justify-between">
+        <div>
+          <p className="text-default-500">{title}</p>
+          <p className="text-2xl font-semibold">{value}</p>
+          <Chip
+            color={isPositive ? "success" : "danger"}
+            variant="flat"
+            size="sm"
+            startContent={
+              <Icon 
+                icon={isPositive ? "lucide:trend-up" : "lucide:trend-down"}
+              />
+            }
+          >
+            {change}%
+          </Chip>
+        </div>
+        <div className="p-3 bg-primary/10 rounded-full">
+          <Icon icon={icon} className="text-2xl text-primary" />
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
+// Info Card para conteúdo descritivo
+export function InfoCard({
+  title,
+  description,
+  image,
+  actions
+}: InfoCardProps) {
+  return (
+    <Card>
+      {image && (
+        <CardHeader className="p-0">
+          <Image
+            removeWrapper
+            src={image}
+            alt={title}
+            className="w-full h-48 object-cover"
+          />
+        </CardHeader>
+      )}
+      <CardBody>
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="text-default-500">{description}</p>
+      </CardBody>
+      {actions && (
+        <CardFooter className="gap-2">
+          {actions}
+        </CardFooter>
+      )}
+    </Card>
+  );
+}
+
+// Barra de pesquisa interativa
+export function SearchBar({
+  value,
+  onChange,
+  onSearch
+}: SearchBarProps) {
+  return (
+    <div className="flex gap-2">
+      <Input
+        value={value}
+        onValueChange={onChange}
+        placeholder="Search..."
+        startContent={<Icon icon="lucide:search" />}
+        isClearable
+        onKeyDown={(e) => {
+          if (e.key === "Enter") onSearch();
+        }}
+      />
+      <Button color="primary" onPress={onSearch}>
+        Search
+      </Button>
+    </div>
+  );
+}
+```
+
+### 5.3 Listas e Grids
+```typescript
+// Grid de Cards
+export function CardGrid<T>({
+  items,
+  renderItem
+}: CardGridProps<T>) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {items.map((item) => renderItem(item))}
+    </div>
+  );
+}
+
+// Lista com Ações
+export function ActionList<T>({
+  items,
+  onAction
+}: ActionListProps<T>) {
+  return (
+    <div className="flex flex-col divide-y divide-default-200">
+      {items.map((item) => (
+        <div
+          key={item.id}
+          className="flex justify-between items-center py-4"
+        >
+          <div>
+            <p className="font-medium">{item.title}</p>
+            <p className="text-default-500">{item.description}</p>
+          </div>
+          <ButtonGroup>
+            <Button
+              variant="flat"
+              color="primary"
+              onPress={() => onAction("view", item)}
+            >
+              Ver
+            </Button>
+            <Button
+              variant="flat"
+              color="danger"
+              onPress={() => onAction("delete", item)}
+            >
+              Excluir
+            </Button>
+          </ButtonGroup>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+## 6. Formulários e Validação
+
+### 6.1 Form Layouts 
+```typescript
+// Two Columns Form
+export function TwoColumnsForm() {
+  return (
+    <Form onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormInput
+          label="Nome"
+          name="name"
+          rules={{ required: true }}
+        />
+        <FormInput
+          label="Email"
+          name="email"
+          type="email"
+          rules={{ required: true }}
+        />
+        <FormInput
+          label="Telefone"
+          name="phone"
+          className="md:col-span-2"
+        />
+      </div>
+    </Form>
+  );
+}
+
+// Form com Seções
+export function SectionedForm() {
+  return (
+    <Form onSubmit={handleSubmit}>
+      <Card className="mb-4">
+        <CardHeader>
+          <h3 className="text-lg font-semibold">
+            Dados Pessoais
+          </h3>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          <FormInput label="Nome" name="name" />
+          <FormInput label="Email" name="email" />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold">
+            Endereço
+          </h3>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          <FormInput label="Rua" name="street" />
+          <FormInput label="Cidade" name="city" />
+        </CardBody>
+      </Card>
+    </Form>
+  );
+}
+```
+
+### 6.2 Form Validation
+```typescript
+interface FormData {
+  email: string;
+  password: string;
+}
+
+export function LoginForm() {
+  const [formData, setFormData] = React.useState<FormData>({
+    email: "",
+    password: ""
+  });
+  
+  const [errors, setErrors] = React.useState<Partial<FormData>>({});
+  
+  const validateForm = () => {
+    const newErrors: Partial<FormData> = {};
+    
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      // Submit form
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Input
+        label="Email"
+        type="email"
+        value={formData.email}
+        onValueChange={(value) => 
+          setFormData(prev => ({ ...prev, email: value }))
+        }
+        isInvalid={!!errors.email}
+        errorMessage={errors.email}
+      />
+      
+      <Input
+        label="Password"
+        type="password"
+        value={formData.password}
+        onValueChange={(value) => 
+          setFormData(prev => ({ ...prev, password: value }))
+        }
+        isInvalid={!!errors.password}
+        errorMessage={errors.password}
+      />
+      
+      <Button type="submit" color="primary">
+        Login
+      </Button>
+    </form>
+  );
+}
+```
+
+### 6.3 Inputs e Controles
+
+```typescript
+// Select controlado com itens dinâmicos
+export function DynamicSelect({
+  valor,
+  onChange,
+  opcoes
+}) {
+  return (
+    <Select
+      selectedKeys={[String(valor)]}
+      onSelectionChange={(keys) => {
+        const selected = Number(Array.from(keys)[0]);
+        onChange(selected);
+      }}
+      placeholder="Selecione uma opção"
+    >
+      {opcoes.map((op) => (
+        <SelectItem key={String(op.valor)}>{op.label}</SelectItem>
+      ))}
+    </Select>
+  );
+}
+
+// Input editável com feedback visual
+export function EditableInput({
+  valorTemp,
+  setValorTemp,
+  handleBlur,
+  handleKeyDown
+}) {
+  return (
+    <Input
+      value={valorTemp}
+      onChange={(e) => setValorTemp(e.target.value)}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      placeholder="Digite um título"
+      classNames={{
+        input: "text-2xl font-bold",
+        inputWrapper: "bg-transparent shadow-none hover:bg-transparent",
+      }}
+      size="lg"
+      variant="underlined"
+    />
+  );
+}
+```
+
+---
+
+## 7. Performance e Otimização
+
+### 7.1 Memoização e Callbacks
+```typescript
+// Memoize valores computados
+const filteredData = React.useMemo(() => {
+  return data.filter(item => item.title.includes(search));
+}, [data, search]);
+
+// Use callbacks para eventos
+const handleClick = React.useCallback(() => {
+  // lógica
+}, [dependencies]);
+
+// Memoize componentes de lista
+const MemoizedList = React.memo(function List({ items }: ListProps) {
+  return (
+    <div className="grid gap-4">
+      {items.map(item => (
+        <ListItem
+          key={item.id}
+          item={item}
+          onAction={handleAction}
+        />
+      ))}
+    </div>
+  );
+});
+
+// Callbacks estáveis para funções de tabela
+function DataGrid() {
+  const handleSort = React.useCallback((column: string) => {
+    // Lógica de ordenação
+  }, []);
+
+  const handleFilter = React.useCallback((value: string) => {
+    // Lógica de filtro
+  }, []);
+
+  return (
+    <Table
+      onSortChange={handleSort}
+      onFilterChange={handleFilter}
+    />
+  );
+}
+```
+
+### 7.2 Boas Práticas de Otimização
+- Use virtualização para listas grandes (react-window, react-virtualized)
+- Divida componentes complexos em menores
+- Evite recálculos em cada renderização com useMemo
+- Estabilize funções com useCallback para evitar re-renders desnecessários
+- Use lazy loading para componentes menos cruciais
+- Implemente renderização condicional para elementos complexos
+
+---
+
+## 8. Acessibilidade e UX
+
+### 8.1 Atributos ARIA e Navegação
+```typescript
+// Modais acessíveis
+<Modal aria-labelledby="modal-title">
+  <ModalHeader id="modal-title">Título</ModalHeader>
+</Modal>
+
+// Botões com aria-label
+<Button 
+  onPress={handlePress}
+  aria-label="Fechar modal"
+>
+  <Icon icon="close" />
+</Button>
+
+// Estados de foco visíveis
+<Input
+  classNames={{
+    input: "focus:ring-2 focus:ring-primary",
+    inputWrapper: "hover:border-primary transition-colors"
+  }}
+/>
+```
+
+### 8.2 Hierarquia Visual e Posicionamento
+```typescript
+// ✅ Correto: Botões primários à direita, secundários à esquerda
+<div className="flex justify-end gap-2">
+  <Button variant="flat" color="default">Cancelar</Button>
+  <Button color="primary">Salvar</Button>
+</div>
+
+// ✅ Correto: Botões de ação em cards
+<Card>
+  <CardHeader className="flex justify-between items-center">
+    <h3 className="text-lg font-semibold">Título</h3>
+    <div className="flex gap-2">
+      <Button
+        isIconOnly
+        variant="light"
+        onPress={onEdit}
+      >
+        <Icon icon="lucide:edit" />
+      </Button>
+      <Button
+        isIconOnly
+        variant="light"
+        color="danger"
+        onPress={onDelete}
+      >
+        <Icon icon="lucide:trash" />
+      </Button>
+    </div>
+  </CardHeader>
+</Card>
+```
+
+### 8.3 Organização Lógica de Formulários
+```typescript
+// ✅ Correto: Organização lógica de campos
+<form className="flex flex-col gap-4">
+  {/* Campos principais primeiro */}
+  <Input
+    label="Nome"
+    isRequired
+    startContent={<Icon icon="lucide:user" />}
+  />
+  
+  {/* Campos secundários depois */}
+  <div className="grid grid-cols-2 gap-4">
+    <Input label="Telefone" />
+    <Input label="Celular" />
+  </div>
+  
+  {/* Ações no final */}
+  <div className="flex justify-end gap-2 mt-4">
+    <Button variant="flat">Cancelar</Button>
+    <Button color="primary">Salvar</Button>
+  </div>
+</form>
+```
+
+### 8.4 Feedback Visual e Estados
+```typescript
+// Estados de loading claros
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
+  return (
+    <Button
+      color="primary"
+      isLoading={isLoading}
+      spinner={
+        <Spinner
+          size="sm"
+          color="current"
+        />
+      }
+    >
+      {isLoading ? "Salvando..." : "Salvar"}
+    </Button>
+  );
+}
+
+// Feedback de ações
+function ActionButton({ onAction }: { onAction: () => Promise<void> }) {
+  const handlePress = async () => {
+    try {
+      await onAction();
+      addToast({
+        title: "Sucesso",
+        description: "Operação realizada",
+        color: "success"
+      });
+    } catch (error) {
+      addToast({
+        title: "Erro",
+        description: error.message,
+        color: "danger"
+      });
+    }
+  };
+
+  return <Button onPress={handlePress}>Executar</Button>;
+}
+```
+
+---
+
+## 9. Boas Práticas de Usabilidade
+
+### 9.1 Princípios Gerais
+- Prefira componentes HeroUI nativos para estrutura e layout
+- Separe componentes em funções pequenas e reutilizáveis
+- Use props tipadas e interfaces claras para todos os componentes
+- Use composição para criar layouts flexíveis
+- Evite aninhar HTML puro dentro de componentes HeroUI
+- Utilize ícones do Lucide React para enriquecer botões e cards
+- Use cores de ícone alinhadas ao contexto do componente
+- Use `Chip` para feedback visual de status
+
+### 9.2 Hierarquia de Ações e Elementos
+- **Hierarquia de Botões:**
+  - Primário: `color="primary"` para ações principais
+  - Secundário: `variant="flat"` para ações alternativas
+  - Terciário: `variant="light"` para ações de menor impacto
+  - Destrutivo: `color="danger"` para ações irreversíveis
+
+- **Posicionamento de Elementos:**
+  - Ações principais: Canto direito
+  - Ações secundárias: Canto esquerdo
+  - Navegação: Topo ou lateral esquerda
+  - Filtros: Topo, antes do conteúdo
+
+### 9.3 Feedback e Interatividade
+- Loading states em todas as ações assíncronas
+- Toasts para confirmações e erros
+- Tooltips para ações não óbvias
+- Mensagens de erro claras e acionáveis
+- Estados de hover/focus visíveis
+- Transições suaves para mudanças de estado
+
+### 9.4 Acessibilidade
+- Labels claros em todos os inputs
+- Estados de foco visíveis
+- Mensagens de erro associadas aos campos
+- Suporte a navegação por teclado
+- Cores com contraste adequado
+- Elementos com tamanho suficiente para toque em dispositivos móveis
+
+---
+
+## 10. Recomendações Adicionais
+
+1. Use sempre o namespace React para hooks:
+```typescript
+// ✅ Correto
+const [state, setState] = React.useState("");
+
+// ❌ Incorreto
+const [state, setState] = useState("");
+```
+
+2. Mantenha consistência nos eventos:
+```typescript
+// ✅ Correto
+<Button onPress={() => handleClick()}>
+
+// ❌ Incorreto
+<Button onClick={() => handleClick()}>
+```
+
+3. Use os tipos corretos do HeroUI:
+```typescript
+// ✅ Correto
+color: "primary" | "secondary" | "success" | "warning" | "danger"
+
+// ❌ Incorreto
+color: string
+```
+
+4. Aproveite os componentes utilitários:
+```typescript
+// ✅ Correto
+<Divider className="my-4" />
+
+// ❌ Incorreto
+<hr className="border-t border-gray-200" />
+```
+
+Adote estes padrões para garantir consistência, acessibilidade e experiência de usuário superior em todos os componentes HeroUI do projeto. 
+
