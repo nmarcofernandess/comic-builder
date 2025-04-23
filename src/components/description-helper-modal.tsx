@@ -14,11 +14,14 @@ interface DescriptionHelperModalProps {
 const DescriptionHelperModal: React.FC<DescriptionHelperModalProps> = ({
   isOpen,
   onClose,
-  details,
+  details = {},
   onUpdateDetails,
   onGenerateDescription,
 }) => {
-  const updateField = (field: keyof CharacterPhase["details"], value: string) => {
+  const updateField = (
+    field: 'hair' | 'clothes' | 'expression' | 'beard' | 'tattoos' | 'body' | 'visualStyle' | 'accessories',
+    value: string
+  ) => {
     onUpdateDetails({
       ...details,
       [field]: value,

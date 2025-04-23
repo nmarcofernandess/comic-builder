@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Tabs, Tab, addToast } from "@heroui/react";
+import { Button, Navbar, NavbarBrand, NavbarContent, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Tabs, Tab, addToast } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import ThemeSwitcher from "./theme-switcher";
 import { ComicBuilderData } from "../App";

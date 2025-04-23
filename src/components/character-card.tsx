@@ -1,8 +1,8 @@
 import React from "react";
-import { Accordion, AccordionItem, Button, Card, CardHeader, CardBody, Chip, Input, addToast } from "@heroui/react";
-import { Icon } from "@iconify/react";
 import CharacterPhase from "./character-phase";
 import { Character, CharacterPhase as CharacterPhaseType } from "../App";
+import { Button, Card, CardHeader, CardBody, Chip, Input } from "@heroui/react";
+import { Icon } from "@iconify/react";
 
 interface CharacterCardProps {
   character: Character;
@@ -34,12 +34,6 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
       ...character,
       phases: [...character.phases, newPhase],
     });
-    
-    addToast({
-      title: "Nova fase adicionada",
-      description: `Fase adicionada para "${character.name}".`,
-      icon: <Icon icon="lucide:plus-circle" className="text-success" />
-    });
   };
 
   const updatePhase = (updatedPhase: CharacterPhaseType) => {
@@ -67,21 +61,10 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
       ...character,
       phases: [...character.phases, duplicatedPhase],
     });
-    
-    addToast({
-      title: "Fase duplicada",
-      description: `"${phaseToDuplicate.title}" foi duplicada.`,
-      icon: <Icon icon="lucide:copy" className="text-primary" />
-    });
   };
 
   const deletePhase = (phaseId: string) => {
     if (character.phases.length <= 1) {
-      addToast({
-        title: "Ação não permitida",
-        description: "Cada personagem precisa ter pelo menos uma fase.",
-        icon: <Icon icon="lucide:alert-circle" className="text-warning" />
-      });
       return;
     }
     
@@ -92,12 +75,6 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
     onUpdate({
       ...character,
       phases: updatedPhases,
-    });
-    
-    addToast({
-      title: "Fase removida",
-      description: `"${phaseToDelete.title}" foi excluída.`,
-      icon: <Icon icon="lucide:trash" className="text-danger" />
     });
   };
 

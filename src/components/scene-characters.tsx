@@ -122,14 +122,12 @@ const SceneCharacters: React.FC<SceneCharactersProps> = ({
                   }}
                   className="flex-1 min-w-[200px]"
                 >
-                  <SelectItem key={character.id} value={character.id}>
-                    {character.name}
-                  </SelectItem>
-                  {getAvailableCharacters().map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
+                  {[
+                    <SelectItem key={character.id}>{character.name}</SelectItem>,
+                    ...getAvailableCharacters().map((c) => (
+                      <SelectItem key={c.id}>{c.name}</SelectItem>
+                    ))
+                  ]}
                 </Select>
                 
                 <Select
@@ -142,7 +140,7 @@ const SceneCharacters: React.FC<SceneCharactersProps> = ({
                   className="flex-1 min-w-[200px]"
                 >
                   {character.phases.map((phase) => (
-                    <SelectItem key={phase.id} value={phase.id}>
+                    <SelectItem key={phase.id}>
                       {phase.title} {phase.age ? `(${phase.age})` : ""}
                     </SelectItem>
                   ))}

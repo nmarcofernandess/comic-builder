@@ -4,7 +4,6 @@ import GeneralSettings from "./components/general-settings";
 import ScenesTab from "./components/scenes-tab";
 import Dashboard from "./components/dashboard";
 import { useLocalStorage } from "./hooks/use-local-storage";
-import { Drawer, DrawerContent, DrawerBody } from "@heroui/react";
 
 export interface Character {
   id: string;
@@ -112,10 +111,6 @@ function App() {
     };
 
     navigator.clipboard.writeText(JSON.stringify(generalPrompt, null, 2));
-  };
-
-  const navigateToDashboard = () => {
-    setSelected("dashboard");
   };
 
   const navigateToSection = (section: string) => {

@@ -1,6 +1,5 @@
 import React from "react";
-import { Textarea, Button, Image } from "@heroui/react";
-import { Icon } from "@iconify/react";
+import { Textarea } from "@heroui/react";
 import { ScenePanel as ScenePanelType } from "../App";
 
 interface ScenePanelProps {

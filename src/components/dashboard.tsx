@@ -6,7 +6,6 @@ import {
   CardHeader,
   Button,
   Divider,
-  Image,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
